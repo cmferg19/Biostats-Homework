@@ -24,3 +24,11 @@ compensation <- read.csv(here("Data", "compensation.csv"))
 View(compensation)
 ```
 
+# Working with `ggplot2()`
+The first thing that we are going to do is try and create a simple scatter plot of the data.  We will do this using `ggplot2()`.
+
+```{r}
+# Use ggplot to make a simple scatterplot
+ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point()
+```
+
