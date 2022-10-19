@@ -29,6 +29,17 @@ The first thing that we are going to do is try and create a simple scatter plot 
 
 ```{r}
 # Use ggplot to make a simple scatterplot
+# the function takes the following parameters: ggplot(data frame, aes(x = x-axis, y = y-axis))+geom_point()
+
+# the +geom_point() function adds another layer to the plot that will overlay your data points
 ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point()
+```
+## Customizing plots
+One thing that we notice about the scatterplot above is the grey background.  This is not always ideal and we can use the following code to get rid of the grey.
+
+```{r}
+# getting rid of the grey in the plot background
+ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point() + 
+     theme_bw()
 ```
 
