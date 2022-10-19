@@ -1,0 +1,26 @@
+---
+title: "Homework 21 - Working With Data in R"
+output: html_notebook
+---
+
+# Overview
+During this homework assignment we are going to take a look at different ways that you can visualize data.  To start, I am going to import the libraries that we are going to need to import and manipulate the data. 
+
+```{r}
+# clear the R environment and import the libraries that we need
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+
+The data that we are going to be working with is the "compensation.csv" data that we have been working with. To import it, I will use the `read.csv()` and the `here()` functions.
+
+```{r}
+# import the data 
+compensation <- read.csv(here("Data", "compensation.csv"))
+
+# open the data to ensure that it imported correctly
+View(compensation)
+```
+
