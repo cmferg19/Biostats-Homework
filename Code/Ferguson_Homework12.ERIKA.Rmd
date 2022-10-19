@@ -1,0 +1,84 @@
+---
+title: "Homework 12 - Practicing Manipulating Data"
+output: html_notebook
+---
+
+For this homework assignment, we will be using a new dataset to practice a number of different functions within the `dplyr()` library.  Before we do anything though, we need to clear R's environment window and import the appropriate libraries so we can acess these functions. 
+
+```{r}
+# clearing the environment window
+rm(list = ls())
+
+# importing the appropriate libraries
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+Now we can import the dataset that we want to use for this exercise. I used the `here()` function to start defining the file path so we can use the `read.csv()` function without writing out the entire file path.  This process goes as follows:
+
+```{r}
+# importing the data set and assigning it to a variable
+cover = read.csv(here("Data", "donnerville_percent_cover.csv"), stringsAsFactors = TRUE)
+```
+
+Now we will check the column headings for the dataset and extract some information about the types of data within it using the `head()`, `glimpse()` and `str()` functions.
+
+```{r}
+# check the column headings of the data and the first few rows of data
+head(cover)
+
+# provides basic summary of data
+glimpse(cover)
+
+# use the str() function to take a look at the data structure
+str(cover)
+```
+Let's rename the "Plot.dim" and "Plot.type" column headings to see how this works.
+
+```{r}
+# use piping to reassign the names of the data
+cover <- cover %>% rename(Plot_type = Plot.type, Plot_dim = Plot.dim)
+
+# check the names to see if it changed. 
+names(cover)
+
+# another way to do this is to use the output of the names function and reassign them
+names(cover) <- c("Site", "Date", "Plot_type", "Plot_dim", "Slope", "Aspect", "Plot", "Type", "Percent")
+```
+
+Now the goal is to determine the average percent cover for Donnerville 1 by the type of cover (bare, bryophytes, vascular plants).  To do this, I will have to select the rows for the Donnerville 1 plots and then filter the types of cover. Once I filter by types of cover, I can then find the average percent cover for each type.
+
+```{r}
+# get just the plot 1 data
+plt1 <- filter(cover, Site == "Donnerville 1")
+```
+
+```{r}
+# use the group_by() function to determine the average percent cover for each type of leaf cover
+plt1 %>% group_by(Type) %>% summarize(avg_percent_cover = mean(Percent))
+
+```
+You could do lines 51 though 60 more efficiently without creating plt1 as follows:
+
+```{r}
+cover %>% filter(Site == "Donnerville 1") %>% group_by(Type) %>% summarise(avg_percent_cover = mean(Percent))
+```
+
+
+
+
+
+
+Now that we have the mean percent cover for each type for the plot 1 data, we can move onto the next task.  The next task is to determine the average percent vascular plant cover across all sites.  To do this, I will first sort the data and select the types with vascular plant cover using the `filter()` function
+
+```{r}
+# isolate the vascular plant cover data
+vascular <- filter(cover, Type == "Vascular")
+```
+
+Now, I will use the `mean()` function to determine the average percent cover for the vascular type of plant cover
+
+```{r}
+vascular %>% summarize(avg_percent = mean(Percent))
+```
+Again, you can use filter to isolate just the data you want so that you don't have to do two steps. See if you can adjust your code accordingly.

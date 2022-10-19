@@ -1,0 +1,203 @@
+---
+title: "GSWR Chapter 3: Data Management, Manipulation, and Exploration with dplyr"
+output: html_notebook
+---
+
+## Introduction
+In this chapter, we will be exploring the different ways that we can use the `dplyr` package to work with different data sets. The first thing that we are going to do is input the usual code to clear the environment of R and import the appropriate packages that we will be referencing.
+
+```{r}
+# clear the environment
+rm(list = ls())
+
+# import the appropriate libraries
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(here)
+```
+
+Now we are going to import the dataset that we will be using for this exercise.
+
+```{r}
+# use the read.csv() function to import the data
+compensation = read.csv(here("Data", "compensation.csv"))
+```
+
+## Preliminary Analysis of Variables
+When looking at different data sets, it can be useful to look at the information that the columns contain. To get some insight on this, you can use the `summary()` function to learn about the median, mean, interquartile range, minimum, and maximums for all numeric columns in the data set. It will also calculate these values for the levels and sample size of categorical columns. 
+
+```{r}
+# use the summary() function to pull preliminary stats on column values
+summary(compensation)
+```
+## A Closer Look into the dplyr Functions
+There are a number of ways to analyze data using the `dplyr` package in R.  Some useful functions within this package include 
+  - `select()`: allows you to select columns
+  - `slice()` : allows you to select rows
+  - `filter()`: allows you to pick subsets of rows, this is conditional upon the values in a column
+  - `arrange()`: sorts rows
+  - `mutate()`: creates new variables in the data frame
+  
+### select()
+Let's take a closer look at `select()`.  It can be useful to use the `names()` function first to ensure you know the column names inside of your data frame (especially if you are not familliar with your dataset).
+
+```{r}
+# use the names() function to pull the names of the columns
+names(compensation)
+
+# use the select() function to pull the "Fruit" column
+select(compensation, Fruit)
+```
+The `select()` function can also be used to select all of the columns in the data set except for one.  This is done by using a minus sign.
+
+```{r}
+# selecting all of the columns except 1
+select(compensation, -Root)
+```
+
+### slice()
+The `slice()` function selects the rows based on numbers that you can specify. This allows you to select one row, a sequence, or a discontinuous set. 
+
+```{r}
+# to isolate the second row
+slice(compensation, 2)
+```
+```{r}
+# to look at the second to tenth, the : symbol will allow use to specify a sequence.
+slice(compensation, 2:10)
+```
+
+To get a discontinuous set of values, you need to use the `c()` function to specify the row numbers that you want. 
+
+```{r}
+# grabbing a discontinuous set of rows
+slice(compensation, c(2, 3, 10))
+```
+
+### filter()
+The `filter()` function takes logical operators and boolean operators to sort through data sets. To get some insight into how this works, we will look at some of these logical operators - starting with the `with()` function.
+
+```{r}
+with(compensation, Fruit > 80)
+```
+
+The `with()` function tells R to look at the data frame and perform the specified function and then stop.  In this example, we used a > symbol which is an example of a logical and produces a sequence of TRUE or FALSE values based on the information in the "Fruit" column. The TRUE/FALSE values from this function are transmitted to the `filter()` function to be interpreted. 
+
+To use `filter()`, you need to specify the data frame and the condition by which you want to sort the rows. 
+
+```{r}
+# using the filter() function
+filter(compensation, Fruit  >80)
+```
+
+Other common logical operators used with `filter()` include:
+  - "==" : equals
+  - "!+" : does not equal
+  - "<,>,<=,>=" : less than, greater than, less than or equal to, greater than or equal to
+  - "|" : or
+  - "&" : and
+  
+```{r}
+# selecting rows according to multiple columns
+filter(compensation, Fruit > 80 | Fruit < 20)
+```
+To use these filtered outputs, you can use the assignment operator `<-` to assign them to a new variable. This will allow you to reference them later on and do more with them.
+
+```{r}
+# assigning the low and high fruit producing trees to an object. Gets rows for each condition and assigns them to an object.
+
+lo_high_fruit <- filter(compensation, Fruit > 80 | Fruit < 20)
+```
+
+### mutate()
+The `mutate()` function allows you to transform columns of your data.  Similar to the rest of the `dplyr` functions, you have to start by specify the data frame that you want to reference.  Then you can pick a new column name and the transformation that you want to apply.  Let's see how this works:
+
+```{r}
+# use the head() function to see the first 6 rows of compensation right now
+head(compensation)
+
+# use mutate to transform the dataset
+# log(Fruit) is in the column logFruit, all of which gets inputted into the object compensation
+compensation <- mutate(compensation, logFruit = log(Fruit))
+
+# now look at the first 6 rows of the new compensation object
+head(compensation)
+```
+### arrange()
+The `arrange()` function allows you to sort your data. It will put things in terms of increasing order based on columns you specify.
+
+```{r}
+# using arrange to sort in terms of increasing Fruit production
+arrange(compensation, Fruit)
+```
+This can be useful because it also allows us to set up data for calculations that need to be performed in a specific order. You can do this by sorting by multiple variables.
+
+## Tips While Using these Funtions
+Another cool thing about the `dplyr` package is that you can use multiple functions in a single line of code. 
+
+```{r}
+# root values from Fruit > 80 subset
+select(filter(compensation, Fruit > 80), Root)
+```
+
+Another cool command is the pipe command which you can access through its symbol `%>%`.  Essentially it tells R to put the answer of the left-hand command into the function on the right. 
+
+```{r}
+# Root values from Fruit > 80 subset
+# Via piping
+compensation %>%
+filter(Fruit > 80) %>%
+select(Root)
+```
+
+## Calculating Summary Statistics About Groups of Data
+The functions `group_by()` and `summarize()` are useful for working with categorical data that also may be present in your dataset. 
+
+The nested approach to summarizing these data uses takes grouping variables and returns the stats for the specific levels.
+
+```{r}
+# using the summarize() function to look at the different levels of the Grazing category
+mean.fruit <- summarize(
+  group_by(compensation, Grazing),
+      meanFruit = mean(Fruit)
+)
+```
+
+The `group_by` function declares Grazing as the grouping variable.  When using this function, you can declare more grouping variables by separating them with commas. 
+
+You can also use the pipping method to do something similar with the data.  The order of the functions does change however with this method.  You need to start with data, define the groups, and calculate the desired operation for each group. 
+
+```{r}
+# using the pipping method to sort through the grouping data
+compensation %>%
+  group_by(Grazing) %>%
+    summarise(meanFruit = mean(Fruit))
+```
+## Other Statistical Operations
+The functions `mean()`, `sd()`, and `median()` allow you to find the respective values for different variables or categories you specify. 
+
+```{r}
+# finding the standard deviation of the Fruit
+compensation %>%
+  group_by(Grazing) %>%
+    summarize(
+      meanFruit = mean(Fruit),
+      sdFruit = sd(Fruit)
+    )
+```
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+

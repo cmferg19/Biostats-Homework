@@ -1,0 +1,92 @@
+---
+title: "Using dplyr to fix mistakes"
+output: html_notebook
+---
+
+For this assignment, we will be using some of the functions from the `dplyr` package to fix some mistakes in a dataset. The first thing that we are going to do is clear R's environment and upload the packages that we will need to access to manipulate the data.   
+
+```{r}
+rm(list = ls())
+
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+The next thing that we are going to do is import the dataset that we will need to modify for the purpose of practicing manipulating data. 
+
+```{r}
+# import the csv file that we are going to use for this exercise without stringsAsFactors = TRUE
+DF <- read.csv(here("Data", "drug_resistance.csv"))
+
+# now we are going to run a summary of DF to take a look at the data
+summary(DF)
+```
+Now we are going to import the data again, but we are going to use the `stringsAsFactors = TRUE` operation while importing the data to convert the characters to factors. 
+
+```{r}
+DF <- read.csv(here("Data", "drug_resistance.csv"), stringsAsFactors = TRUE)
+
+# run a summary to see how the output differs
+summary(DF)
+```
+When you take the summary of the DF without the `stringsAsFactors = TRUE`, the "Class" and "Mode" columns output as "character" data.  In contrast, when the data is uploaded with the `stringsAsFactors = TRUE`, the character data is converted into factor data.  The `summary()` function in this case returns an output that shows the number of levels for the different conditions. 
+
+Now we are going to use the `unique()` and the `levels()` functions to take a look at each of the text based columns of the data.
+
+```{r}
+unique(DF)
+```
+when I use the `unique()` function, it appears that there are a number of different ways that the "Treatment" and "tech.name" columns are formatted.  Additionally, it appears that the "tech.name" and "colony.count" column headers were entered using spaces.  We will fix that in a little bit. 
+
+```{r}
+levels(DF)
+```
+When I run the `levels()` function on this dataset, it returns "NULL" as the value.  I am not exactly sure what this means but I believe that it does not like the formatting of the data.
+
+## Reformatting the data
+
+The first thing that I am going to do is fix the column headers. To do this, I will use the `names()` function to reassign column headers in the appropriate format.
+
+```{r}
+# reassign column headers
+names(DF) <- c("Treatment", "Plate_n", "Colony_count", "Tech_name")
+```
+
+The next thing we are going to do is address the treatment conditions. From what I gather there are 3 different treatment conditions - Control, Drug x2, Drug x3.  Right now, the data is being shown as a factor with 9 different levels becuase the condiditions were entered in a slighly different format. We are going to isolate the different treatments and group them together to reassign them to the same string in order to make the formating consistent again. 
+
+```{r}
+# reassign all of the data that refers to the control treatment as "Control"
+Control <- which(DF$Treatment == "control" | DF$Treatment == "Control" | DF$Treatment == "cantrol")
+
+DF$Treatment[Control] <- "control"
+
+# reassign the data that refers to the drug x 2 data as "drug x 2"
+Drug2 <- which(DF$Treatment == "drug x 2" | DF$Treatment == "Drugx2" | DF$Treatment == "drug2")
+
+DF$Treatment[Drug2] <- "drug x 2"
+
+# reassign the data that refers to drug x 3 as "drug x 3"
+Drug3 <- which(DF$Treatment == "drug x 3" | DF$Treatment == "Drug x 3" | DF$Treatment == "drug3")
+
+DF$Treatment[Drug3] <- "drug x 3"
+
+# use the View() function to check the DF to see if it corrected things
+View(DF)
+```
+
+These modifications appear to have fixed the "Treatment" column of data.  Our next task is to fix the formatting of the "Tech_Name" column.  To do this, we are going to go through a similar process as above. This involves manually going through the data and seleting the names of the techs that were formatted in different ways and reassigning to a new variable to make consistent formatting all around. 
+
+```{r}
+# Fix the "Brian" data to make it consistent formatting all around
+Brian <- which(DF$Tech_name == "Brian" | DF$Tech_name == "brian" | DF$Tech_name == "brain")
+
+DF$Tech_name[Brian] <- "Brian"
+
+Becca <- which(DF$Tech_name == "Becca" | DF$Tech_name == "becca")
+
+DF$Tech_name[Becca] <- "Becca"
+
+```
+
+Now that the names of the observations have been grouped together and made consistent, there are an appropriate number of levels for the factor data.  One thing that I did run into however is when I tried to convert "jose" into "Jose".  When I attempted this, I got an error message and the output returned as "NULL" because there were no "Jose" levels that were already in the data.  As such, I think you can only group levels based on ones that are already present in the data set.  There may be a way to overwrite this but I am not 100% sure yet. 

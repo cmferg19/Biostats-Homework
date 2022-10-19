@@ -1,0 +1,118 @@
+---
+title: "Applying more dplyr to my data"
+output: html_notebook
+---
+## Introduction
+In this assignment, we will be looking at the class data collected at the start of the semester.  The purpose of this .Rmd file is to annotate my work and make note of any changes that I make to the data to keep a track record of everything.  Additionally, it will help show my thinking and how I decide to manipulate the data. 
+
+Upon initial examination of the data in Excel, there is a # symbol in the "Tree #" column used to denote "number".  Additionally, there is a space in the "Leaf length" and "Leaf width" columns so I anticipate that there may be some issues with the data import for those headers.  The dates also appear to be formatted differently for almost every person and this could present an issue later on as well. 
+
+## Exercises
+The first thing that we are going to do is clear R's environment using the `rm(list=ls()` function and import the libraries that we need.  This will allow us to access the functions within the `dplyr` package to manipulate the data, `here()` to set the file path, and `ggplot2()` to access graphing functions. 
+
+```{r}
+# clear R's environment
+rm(list=ls())
+
+# import the libraries that we will be using
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+Now we will import the data file.  The nice thing about using the `here()` function is that it sets the relative file path to the project that we are working in.  In this case, it set the file path to the homework project.  Now I just need to specify the folder that the data is in ("Data") and the file that we want to import within that folder ("day_one_data_for_homework13.csv").  We will also import this with `stringsAsFactors = TRUE` to convert any character data into factor date.  This will allow us to do more with the categorical data within this set. 
+
+```{r}
+# import the data using the read.csv() function and assign it to a variable
+
+DF <- read.csv(here("Data", "day_one_data_for_homework13.csv"))
+
+# open the dataset in a new tab
+View(DF)
+```
+
+Now that the data has been imported, we can see how it changed from its original formatting in Excel.  Right off the bat, I notice that the "Tree #" column in Excel has been changed to "Tree...".  We know that you should avoid special characters when formatting a .csv file and this is evident that R did not really know what to do with the # sign. Also, a "." has been placed in the spot where there was a space for the "Leaf Length" and "Leaf Width" columns. R could be putting in a period to indicate a place holder becuase it does not like spaces in column headers. 
+
+To fix this, we are going to use the `names()` function to reassign the column headers.
+
+```{r}
+# use the names function to reassign the column headers in this dataset.
+names(DF) <- c("Name", "Date", "Part", "Tree_num", "Species", "leaf_length", "leaf_width", "leaf_units")
+```
+
+Now that the column headings have been fixed, we are going to select the rows of data that are in inches and save them to a new data frame.
+
+```{r}
+# use piping to filter out the pieces of data with english units and reassign to a new data frame
+English <- DF %>% filter(leaf_units == "inches")
+```
+
+The next task is to deal with the dates. Excel tries to be helpful with dates but in this case, we can see how the formatting got messed up.  I will use the `filter()` function again to grab all of the rows of data with the dates formatted correctly and create a new data frame.
+
+```{r}
+# group all of the dates that are formatted the same way together
+Uniform_dates <- DF %>% filter(Date == "8/24/22")
+
+# check the uniform_dates data frame to see if the dates are grouped together
+View(Uniform_dates)
+```
+
+## Problem 1 - leaf measurements
+ Now we are going to try and fix the data in the columns that are a bit messy. The leaf measurements are in both inches and columns - lets fix it. 
+ 
+ We need a way to convert the english units to metric units.  To do this we will do some calculations based on what we can see and go from there.
+ 
+ First, grab the data:
+```{r}
+to_fix <- DF %>% filter(leaf_units == "inches") %>% select(c(leaf_length, leaf_width))
+
+View(to_fix)
+```
+ 
+ Now let's add two new variables to this data frame by converting each measurement to a decimal (by hand or on paper)
+```{r}
+to_fix <- to_fix %>% mutate(leaf_length_numeric = c(4.125, 6.938, 4.5, 3.75, 6))
+
+to_fix <- to_fix %>% mutate(leaf_width_numeric = c(3.938, 6.5, 6.125, 3.0, 2.5))
+```
+ Now convert to cm
+ 
+```{r}
+to_fix <- to_fix %>% mutate(leaf_length_cm = leaf_length_numeric*2.54,
+                            leaf_width_cm = leaf_width_numeric*2.54)
+```
+ 
+ Now we can put those values into DF in the corresponding rows of leaf.length and leaf.width in DF.  We'll using indexing to see how that works.
+ 
+```{r}
+# the $ allows you to specify the colum that you want to copy over. Then the : tells you the range of rows that you want to replace data over
+DF$leaf_length[1:5]<-to_fix$leaf_length_cm[1:5]
+DF$leaf_width[1:5]<-to_fix$leaf_width_cm[1:5]
+```
+ 
+ Now lets change the units for those rows so that we know we've converted them.
+ 
+```{r}
+DF$leaf_units[1:5] <- "cm"
+```
+ 
+ Now our last step is to make leaf length and leaf width numeric variables
+```{r}
+DF$leaf_length <- as.numeric(DF$leaf_length)
+DF$leaf_width <- as.numeric(DF$leaf_width)
+```
+ 
+## Problem 2 - Tree species
+The tree species are all inconsistent, let's fix this
+
+```{r}
+unique(DF$Species)
+```
+Let's ranatme anything with "maple" as "maple species" and do the same for the other ones
+
+```{r}
+maples <- which(DF$Species == "red maple" | DF$Species == "norway maple" | DF$Species == "Maple" | DF$Species == "maple" | DF$Species == "Red maple")
+
+DF$Species[maples] <- "maple species"
+```
+
+

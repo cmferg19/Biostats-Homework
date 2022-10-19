@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Introduction
+In this homework assignment, I will practice using the `dplyr` functions to review the different ways that we can fix data upon importing.  The first thing that we are going to do is type out the correct functions to clear R's environment and import the different libraries that we need to do this assignment. 
+
+```{r}
+rm(list = ls())
+
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+# Uploading the data we will use
+Now we I am going to upload the data that I will use for this exercise.  I downloaded the data from the module on Canvas and uploaded into my data folder within my homework project in RStudio. When I used the `here()` function, it automatically set the working directory to my homework project.  We will use this and the `read.csv()` function to import the data in. 
+
+```{r}
+# import the csv file that we are going to use for this exercise without stringsAsFactors = TRUE
+Leaves <- read.csv(here("Data", "Class_leaf_measurements.csv"), stringsAsFactors = TRUE)
+
+# now we are going to run a summary of Leaves to take a look at the data
+str(Leaves)
+```
+# Observations
+So right off the bat, I saw that the column names need to be fixed.  Currently, there are spaces, special characters, and very inconsistent formatting that could interfere with our data analysis. 
+
+## Fixing the column headings
+To fix the column headings, we are going to use the `names()` function to reassign the column headers.  This will allow us to fix the current formatting to make it something that is more acceptable for our analysis. 
+
+```{r}
+# using the names function to fix the column headings
+names(Leaves) <- c("Tree_num", "Species", "Leaf_num", "DBH_cm", "Petiole_length", "Total_length_cm", "Middle_lobe_length_cm", "Middle_lobe_width_cm", "Person")
+```
+
+The next thing that we are going to look at is the Species column.  I imported the data using the `stringsAsFactors = TRUE` function which converted the Species data from the original "character" data type to the "factor" data type.  As of right now however, R is interpreting the column as a factor with 9.  This is because each of the observations were entered in a different way. They represent the same species, but since R is case sensitive it treats these as different observations. 
+
+## Fixing the number of factor levels
+We need to bump the number of levels down for the species factor from 9 levels to 3 levels.  To do this, we will reassign the different observations that refer to the same species as the same species using the `which()` function.
+
+
+```{r}
+# Fix the "Species" data to make it consistent formatting all around
+NM <- which(Leaves$Species == "Norway maple" | Leaves$Species == "Norway Maple" | Leaves$Species == "Norway mapel")
+
+Leaves$Species[NM] <- "Norway maple"
+
+RM <- which(Leaves$Species == "Red maple" | Leaves$Species == "red maple" | Leaves$Species == "Red Maple")
+
+Leaves$Species[RM] <- "Red maple"
+
+SM <- which(Leaves$Species == "Sugar maple" | Leaves$Species == "Sugar Maple" |
+Leaves$Species == "sugar maple")
+
+Leaves$Species[SM] <- "Sugar maple"
+
+View(Leaves)
+```
+
+This was effective at repairing the dataset. The next task is to create a new dataset called "Sugar".  This dataset will only contain the sugar maple data from the Leaves dataset
+
+## Creating New dataset "Sugar"
+To do this, we will use the `filter()` function out of the `dplyr` package to filter the Species data by the sugar maple category.
+
+```{r}
+# use piping to seperate the data from the sugar maples from the rest of the dataset
+
+Sugar <- Leaves %>% filter(Species == "Sugar maple")
+
+View(Sugar)
+```
+Now I am going to subset the columns in the new dataset "Sugar" to leave out the person, leaf number, and tree number variables. To do this, I will use piping and the `select()` function out of the dplyr package to select the columns that I want. 
+
+```{r}
+# reassign sugar to exclude the person, leaf number, and tree number variables. using piping and the select() function.  These allow us to tie functions together and only select the columns that I want
+Sugar <- Sugar %>% select(Species | DBH_cm | Petiole_length | Total_length_cm | Middle_lobe_length_cm | Middle_lobe_width_cm)
+```
+
+## Make histogram of "Sugar" Data
+The last task is to make a histogram of the petiole lengths using the cleaned up Sugar data set.  To do this, I will be using the `ggplot2` library and the family of functions within it. 
+
+```{r}
+#I will use the qplot function to make a plot of the data.  It takes the dataset, the specific variable from that dataset, and the type of plot as arguments.
+qplot(Sugar$Petiole_length, geom="histogram")
+```
+
