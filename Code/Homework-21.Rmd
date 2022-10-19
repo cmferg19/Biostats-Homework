@@ -42,4 +42,11 @@ One thing that we notice about the scatterplot above is the grey background.  Th
 ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point() + 
      theme_bw()
 ```
+Another thing we can adjust is increasing the size of the points.  To do this, we will add a `size` argument to the `geom_points()` layer. 
+
+```{r}
+# increasing the size of the data points
+ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point(size = 5) +
+     theme_bw()
+```
 
