@@ -3,4 +3,4 @@ title: "Test Merge Conflict"
 output: html_notebook
 ---
 
-I am trying to make a merge conflict 
+I am trying to make a merge conflict.  Pizza is tasty!
