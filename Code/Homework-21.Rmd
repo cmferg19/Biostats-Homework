@@ -58,4 +58,24 @@ xlab("Root Biomass") +
 ylab("Fruit Production") +
 theme_bw()
 ```
+The `ggplot2()` library also allows you to change the color of the data points based on the levels.  For this, you add another argument to the `aes()` function.  After specifying the x and the y, you can add a color as modeled below. 
+
+```{r}
+# differentiating between the levels of data by changing the colors of the levels
+ggplot(compensation, aes(x = Root, y = Fruit, colour = Grazing)) +
+geom_point(size = 5) +
+xlab("Root Biomass") +
+ylab("Fruit Production") +
+theme_bw()
+```
+Another way to differentiate between different levels is to specify the shape of the data.  Here, we can do that by substituting the `colour = Grazing` in the code above with `shape = Grazing`.
+
+```{r}
+# differentiating between levels of data by changing the shape of the data points
+ggplot(compensation, aes(x = Root, y = Fruit, shape = Grazing)) +
+geom_point(size = 5) +
+xlab("Root Biomass") +
+ylab("Fruit Production") +
+theme_bw()
+```
 
