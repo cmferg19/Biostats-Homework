@@ -49,4 +49,13 @@ Another thing we can adjust is increasing the size of the points.  To do this, w
 ggplot(compensation, aes(x = Root, y = Fruit)) + geom_point(size = 5) +
      theme_bw()
 ```
+We can also customize the x and y-axis labels by using `xlab()` and `ylab()`.  This allows us to get a little more creative and specific with the labels as opposed to them defaulting to the titles of the data we are using. 
+
+```{r}
+ggplot(compensation, aes(x = Root, y = Fruit)) +
+geom_point(size = 5) +
+xlab("Root Biomass") +
+ylab("Fruit Production") +
+theme_bw()
+```
 
