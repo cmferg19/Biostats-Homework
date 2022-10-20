@@ -78,4 +78,48 @@ xlab("Root Biomass") +
 ylab("Fruit Production") +
 theme_bw()
 ```
+## Box and Whisker Plots
+Up to this point, we have primarily been working with scatterplots but the `ggplot2()` library can do a lot more than that.  To make a box plot, we will use the `geom_boxplot()` function that is built into ggplot. 
+
+```{r}
+# making a box and whisker plot with ggplot.  Here, instead of specifiying point, you specify the geom_boxplot to add the boxplot as another layer
+ggplot(compensation, aes(x = Grazing, y = Fruit)) +
+geom_boxplot() +
+xlab("Grazing treatment") +
+ylab("Fruit Production") +
+theme_bw()
+```
+When creating a boxplot, the boxplot is added as another layer on top of the graph.  That being said, we can also add another layer with raw data by incorporating the `geom_point()` function into the code using the `+` sign.
+
+```{r}
+ggplot(compensation, aes(x = Grazing, y = Fruit)) +
+geom_boxplot() +
+geom_point(size = 4, colour = 'lightgrey', alpha = 0.5) +
+xlab("Grazing treatment") +
+ylab("Fruit Production") +
+theme_bw()
+```
+We can use these plots to analyze the data.  Based on these plots, it appears that fruit production is higher in plants with wider root diameters.  Additionally, grazed plants produce more fruit. 
+
+## Making Histograms of Numeric Variabales
+We can use `ggplot()` to make histograms using the `geom_histogram()` function.  That being said, we do have to think about the inputs and how we want to sort or bin them.  This means that the `aes()` function will only have the x-variable. 
+
+```{r}
+# creating a histogram using ggplot()
+ggplot(compensation, aes(x = Fruit)) +
+geom_histogram()
+
+## ‘stat_bin()‘ using ‘bins = 30‘. Pick better value with
+## ‘binwidth‘.
+```
+This does not look quite as neat as we would like it to.  To change this, we will change the binwidth using the following code:
+
+```{r}
+# changing the binwidth of the histogram
+ggplot(compensation, aes(x = Fruit)) +
+geom_histogram(bins = 10)
+ggplot(compensation, aes(x = Fruit)) +
+geom_histogram(binwidth = 15)
+```
+
 
