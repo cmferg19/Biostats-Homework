@@ -121,5 +121,25 @@ geom_histogram(bins = 10)
 ggplot(compensation, aes(x = Fruit)) +
 geom_histogram(binwidth = 15)
 ```
+## Facets
+Faceting allows us to produce a matrix of graphs that are automatically structured by the factors in your data. The function that we will use to do this is called `facet_wrap()`.  See it in practice below:
+
+```{r}
+# using faceting to organize the data, you have to preceed the grouping variable with a "~" symbol for this to work
+
+ggplot(compensation, aes(x = Fruit)) +
+geom_histogram(binwidth = 15) +
+facet_wrap(~Grazing)
+```
+# Saving Graphs For Future Use
+There are a few different ways that we can save these plots so we can use them in the future.  The first method is to go to the "Plots" tab on the right and go to the "Export" button.
+
+Another method is to use the `ggsave()` function built into `ggplot2`.  It works by saving the figure int the "Plots" window to a name that you are able to specify.  Depending on the file suffix that you use, you can dictate the file type that is created. 
+
+```{r}
+# Using ggsave() to save our histogram above
+ggsave("ThatCoolHistogramOfFruit.png")
+```
+
 
 
