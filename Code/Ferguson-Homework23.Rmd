@@ -17,9 +17,18 @@ The next thing to do is to import the data.  The `here()` function sets the file
 
 ```{r}
 # import the data 
-soil <- read.csv(here("Data", "soil_data.csv"))
+soil <- read.csv(here("Data", "soil_data.csv"), stringsAsFactors = TRUE)
 
 # open the data to ensure that it imported correctly
 View(soil)
+```
+
+Now, we want to create a scatterplot, boxplot, and histogram for the SOM_percent column. The first thing I am going to do however is use the `filter()` function to take all of the ones with DEGRASS in the name and `mutate()` to create a new column called DEGRASS.  This process will be repeated with all 5 forests.
+
+```{r}
+# use piping to filter out the Degrasse Plots from the rest of the forest data name and make those samples into new columns
+Degrasse_plts <- c('DEGRASSE PLOT 1 SAMPLE 1', 'DEGRASSE PLOT 1 SAMPLE 2', 'DEGRASSE PLOT 1 SAMPLE 3', 'DEGRASSE PLOT 2 SAMPLE 1','DEGRASSE PLOT 2 SAMPLE 2', 'DEGRASSE PLOT 2 SAMPLE 3', 'DEGRASSE PLOT 3 SAMPLE 1', 'DEGRASSE PLOT 3 SAMPLE 2', 'DEGRASSE PLOT 3 SAMPLE 3')
+d <- soil %>% filter(Field.Name %in% Degrasse_plts)
+View(d)
 ```
 
