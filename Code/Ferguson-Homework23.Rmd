@@ -1,0 +1,25 @@
+---
+title: "Practicing Data Modeling with Soil Data"
+output: html_notebook
+---
+
+For this practice set, I will be taking soil data that was given to us in class and using that to create some different plots to model the data. The first step will be to clear R's environment and import the libraries that we will need.
+
+```{r}
+# clear the R environment and import the libraries that we need
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+```
+
+The next thing to do is to import the data.  The `here()` function sets the file path to the homework folder that I am currently working in.  Using `read.csv()` we can select the soil data from the "Data" folder in this project. 
+
+```{r}
+# import the data 
+soil <- read.csv(here("Data", "soil_data.csv"))
+
+# open the data to ensure that it imported correctly
+View(soil)
+```
+
