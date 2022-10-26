@@ -26,9 +26,18 @@ View(soil)
 Now, we want to create a scatterplot, boxplot, and histogram for the SOM_percent column. The first thing I am going to do however is use the `filter()` function to take all of the ones with DEGRASS in the name and `mutate()` to create a new column called DEGRASS.  This process will be repeated with all 5 forests.
 
 ```{r}
-# use piping to filter out the Degrasse Plots from the rest of the forest data name and make those samples into new columns
-Degrasse_plts <- c('DEGRASSE PLOT 1 SAMPLE 1', 'DEGRASSE PLOT 1 SAMPLE 2', 'DEGRASSE PLOT 1 SAMPLE 3', 'DEGRASSE PLOT 2 SAMPLE 1','DEGRASSE PLOT 2 SAMPLE 2', 'DEGRASSE PLOT 2 SAMPLE 3', 'DEGRASSE PLOT 3 SAMPLE 1', 'DEGRASSE PLOT 3 SAMPLE 2', 'DEGRASSE PLOT 3 SAMPLE 3')
-d <- soil %>% filter(Field.Name %in% Degrasse_plts)
-View(d)
+# use piping to filter out the Degrasse Plots from the rest of the forest data name and make those samples into a new dataframe
+Degrasse <- c('DEGRASSE PLOT 1 SAMPLE 1', 'DEGRASSE PLOT 1 SAMPLE 2', 'DEGRASSE PLOT 1 SAMPLE 3', 'DEGRASSE PLOT 2 SAMPLE 1','DEGRASSE PLOT 2 SAMPLE 2', 'DEGRASSE PLOT 2 SAMPLE 3', 'DEGRASSE PLOT 3 SAMPLE 1', 'DEGRASSE PLOT 3 SAMPLE 2', 'DEGRASSE PLOT 3 SAMPLE 3')
+
+Donnerville <- c('DONNERVILLE PLOT 1 SAMPLE 1', 'DONNERVILLE PLOT 1 SAMPLE 2', 'DONNERVILLE PLOT 1 SAMPLE 3', 'DONNERVILLE PLOT 2 SAMPLE 1','DONNERVILLE PLOT 2 SAMPLE 2', 'DONNERVILLE PLOT 2 SAMPLE 3', 'DONNERVILLE PLOT 3 SAMPLE 1', 'DONNERVILLE PLOT 3 SAMPLE 2', 'DONNERVILLE PLOT 3 SAMPLE 3')
+
+Kip <- c('KIP TRACT PLOT 1 SAMPLE 1', 'KIP TRACT PLOT 1 SAMPLE 2', 'KIP TRACT PLOT 1 SAMPLE 3', 'KIP TRACT PLOT 2 SAMPLE 1','KIP TRACT PLOT 2 SAMPLE 2', 'KIP TRACT PLOT 2 SAMPLE 3', 'KIP TRACT PLOT 3 SAMPLE 1', 'KIP TRACT PLOT 3 SAMPLE 2', 'KIP TRACT PLOT 3 SAMPLE 3')
+
+Peavine <- c('PEAVINE PLOT 1 SAMPLE 1', 'PEAVINE PLOT 1 SAMPLE 2', 'PEAVINE PLOT 1 SAMPLE 3', 'PEAVINE PLOT 2 SAMPLE 1','PEAVINE PLOT 2 SAMPLE 2', 'PEAVINE PLOT 2 SAMPLE 3', 'PEAVINE PLOT 3 SAMPLE 1', 'PEAVINE PLOT 3 SAMPLE 2', 'PEAVINE PLOT 3 SAMPLE 3')
+
+Hammond <- c('HAMMOND PLOT 1 SAMPLE 1', 'HAMMOND PLOT 1 SAMPLE 2', 'HAMMOND PLOT 1 SAMPLE 3', 'HAMMOND PLOT 2 SAMPLE 1','HAMMOND PLOT 2 SAMPLE 2', 'HAMMOND PLOT 2 SAMPLE 3', 'HAMMOND PLOT 3 SAMPLE 1', 'HAMMOND PLOT 3 SAMPLE 2', 'HAMMOND PLOT 3 SAMPLE 3')
+
+soil %>% filter(Field.Name %in% Degrasse) %>% mutate(Forest =  )
 ```
 
+I decided to filter out the Degrasse forest data and put it in a new data frame becuause I ran into issues when I tried to use the `mutate()` function to add these in a seperate column to the soil DF.  R was having trouble becuase the Degrasse DF only has 9 observations whereas the soil DF has 45 observations.  Filtering out the Degrasse data and putting it into a new DF should allow me to do all of the same functions and complete the same goals of this assignment.
