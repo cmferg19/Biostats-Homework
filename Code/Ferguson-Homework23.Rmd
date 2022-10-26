@@ -90,5 +90,26 @@ Creating a histogram using the functions inside of `ggplot2()`
 ggplot(soil, aes(x = SOM_percent)) +
 geom_histogram()
 ```
+Now we are going to repeat the same process with the calcium ppm data.
 
+```{r}
+# Use ggplot to make a simple scatterplot
+# the function takes the following parameters: ggplot(data frame, aes(x = x-axis, y = y-axis))+geom_point()
+
+# the +geom_point() function adds another layer to the plot that will overlay your data points
+ggplot(soil, aes(x = field_name, y = Ca.ppm)) + geom_point()
+```
+```{r}
+# making a box and whisker plot with ggplot.  Here, instead of specifiying point, you specify the geom_boxplot to add the boxplot as another layer
+ggplot(soil, aes(x = field_name, y = Ca.ppm)) +
+geom_boxplot() +
+xlab("field name") +
+ylab("Ca ppm") +
+theme_bw()
+```
+```{r}
+# creating a histogram using ggplot()
+ggplot(soil, aes(x = Ca.ppm)) +
+geom_histogram()
+```
 
