@@ -3,16 +3,71 @@ title: "Homework 24 Scratch version"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+# Overview
+Today we are going to jump back into the GSWR book and tackle the first half of chapter 5. Let's do it.
 
 ```{r}
-plot(cars)
+# First set up the environment to start with a clean slate and the libraries we will need
+rm(list = ls())
+
+library(ggplot2)
+library(dplyr)
+library(here)
+```
+Now I am going to upload the data that we will be using to work thorugh this dataset. 
+
+```{r}
+# import the csv file that we are going to use for this exercise without stringsAsFactors = TRUE
+lady <- read.csv(here("Data", "ladybirds.csv"), stringsAsFactors = TRUE)
+
+# now we are going to run a summary of Leaves to take a look at the data
+glimpse(lady)
+```
+Ok, now that the dataset is in R, we are going to take a look at the first type of test that the book covers - chi squared contingency table analysis. 
+
+# Chi squared contingency table analysis
+The chi squared test is an analysis of count data.  As such, it measures if there is any association between any number of categorical variables (obviously at least greater than 1). 
+For the ladybird data, the purpose of performing the chi squared analysis is to test the null hypothesis that there is no association between ladybird color and the habitat they live in. Essentially, it is to see if there is a biological advantage for certain lady birds to live in different habitats based on their colors. 
+
+Earlier, I used the `glimpse()` function to take a look at the data.  There are a few different variables that we are most interested in such as "Habitat", "colour", and "number".  Before we perform the analysis, we want to organize the data to prime it for plotting and analysis. This can be done using the `group_by()` and `summarize()` functions.
+```{r}
+# use piping to summarize the data using the group_by and summarize funcitons
+totals <- lady %>% 
+     group_by(Habitat, colour)%>%
+     summarize(total.number = sum(number))
+
+# make a bar graph of this data to get a quick overview of it
+ggplot(totals, aes(x = Habitat, y = total.number, fill = colour))+
+
+# tell R not to calculate anything from the data and place the bars next to each other
+     geom_bar(stat = 'identity', position = 'dodge') +
+     
+# manually define the colors of the plot
+     scale_fill_manual(values = c(black = "black", red = "red"))
+
+```
+The purpose of this bar graph is to show the data visually.  In this case we are not summarizing anything so the bar chart is acceptable. Here "fill = morph_colour" is added to the `aes()` function to fill in the bars with colour.  
+
+Also the function `geom_bar()` has the following parameters:
+- stat = 'identity' is used to tell ggplot2 not to calculate anything
+- position = 'dodge' tells ggplot2 to put the bars in each Habitat group next to each other
+
+Based on this data, it appears the black morph is more common in the industrial area compared to the red morph.  The opposite relationship appears to be true for the rural area.  The chi squared test compares frequencies and this graph makes it seem as if morphs are not equally distriuted among the habitats.  Therefore we are looking to reject the null hypothesis.
+
+```{r}
+# give an overview of the data
+totals
+
+# transform the data into a matrix form that will be used for the chi squared analysis
+lady.mat <- xtabs(number ~ Habitat + colour, data = lady)
+
+lady.mat
+
+# perform the chi squared analysis using the matrix above
+chisq.test(lady.mat)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+Now we can actually do something with this analysis.  Since our P value is very small, it suggests that there is a level of significance to the diferences between the color of morphs found in rural and industrial areas.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
