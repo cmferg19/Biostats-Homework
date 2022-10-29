@@ -3,3 +3,88 @@ title: "Homework 25 Scratch"
 output: html_notebook
 ---
 
+# Overview
+Today I will be going through the rest of the statistical tests that chapter 5 of the book covers.  To start however, we will initialize the R code with the usual set up:
+```{r}
+# First set up the environment to start with a clean slate and the libraries we will need
+rm(list = ls())
+
+library(ggplot2)
+library(dplyr)
+library(here)
+library(ggfortify)
+```
+
+Now we are going to import the data that we will be using:
+
+```{r}
+# import the csv file that we are going to use for this exercise with stringsAsFactors = TRUE
+plant_gr <- read.csv(here("Data", "plant.growth.rate.csv"), stringsAsFactors = TRUE)
+
+# now we are going to run a summary of Leaves to take a look at the data
+glimpse(plant_gr)
+```
+# Linear Models
+Linear models include simple regression, multiple regression, ANOVA, and ANCOVA.  They use a least squares framework for estimation.  The function `lm()` is used to fit linear models
+
+## Simple linear regression
+For this example, we are exploring whether plant growth rates vary with soil moisture content.  The hypothesis is that more moisture will cause higher growth rates and vice versa.  
+The first thing that we will do is plot the data.
+```{r}
+# graphing the data
+ggplot(plant_gr,
+       aes(x = soil.moisture.content, y = plant.growth.rate))+
+     geom_point()+
+     ylab("Plant Growth Rate (mm/week)")+
+     theme_bw()
+
+```
+From this graph, the slope of the data appears to be positive which supports our hypothesis. 
+
+Now we will make a simple linear regression from this graph to fit the model using the `lm()` function.  The arguments this function takes are a formula and data.
+```{r}
+# fit linear regression model to the data
+model_pgr <- lm(plant.growth.rate ~ soil.moisture.content, data = plant_gr)
+```
+
+Now we need to check the assumptions of the linear model using the `ggfortify` library.  This library has an `autoplot()` function that produces figures from the `lm()` generated linear model. 
+
+```{r}
+# checking assumptions of linear model
+autoplot(model_pgr, smooth.colour = NA)
+```
+These plots look at the residuals which refer to the errors around the fitted line.  Here is a breakdown of the graphs:
+     - top left: tells whether a line is appropriate to fit to the data.  If a line is not an appropriate model there will be bumps and valleys
+     - top right: evaluates the assumption of a normal distribution.  Dots are residuals and the dashed line is the expectation under the normal line
+     - bottom left: evauates the assumption of equal variance.  The y-axis is standardized and there should be no pattern within the data.
+     - bottom right: evaluates leverage to detect outliers...not super important
+
+Let's look at an interpretation of this linear regression using the `summary()` and `anova()` functions.
+
+```{r}
+# analyse the linear model with anova()
+anova(model_pgr)
+```
+According to this analysis, the f value is pretty high.  This means that the error variance is small relative to the variance attributed to the independent variable.  We also have a small P value which indicates the degree of significance.
+
+```{r}
+# analyse the linear model with summary()
+summary(model_pgr)
+```
+These estimates correspond to the intercept and slope associated with the independent variable. According to the book, if we were to report the results of this test it would look something like this:
+"Soil moisture had a positive effect on plant growth.  For each unit increase in soil moisture, plant growth rate increased by 12.5 mm/week (slope = 12.7, t=12.5, df = 48, p<0.001)
+
+Now we will tie everything togthere to put the fitted model on top of the linear regression.
+
+```{r}
+# fit linear regression model to graph
+ggplot(plant_gr, aes(x = soil.moisture.content,
+y = plant.growth.rate)) +
+geom_point() +
+geom_smooth(method = 'lm') +
+ylab("Plant Growth Rate (mm/week)") +
+theme_bw()
+```
+
+
+
