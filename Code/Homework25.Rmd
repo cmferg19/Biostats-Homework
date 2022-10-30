@@ -1,0 +1,131 @@
+---
+title: "Homework 25 Scratch"
+output: html_notebook
+---
+
+# Overview
+Today I will be going through the rest of the statistical tests that chapter 5 of the book covers.  To start, we will initialize the R code with the usual set up:
+```{r}
+# First set up the environment to start with a clean slate and the libraries we will need
+rm(list = ls())
+
+library(ggplot2)
+library(dplyr)
+library(here)
+library(ggfortify)
+```
+
+```{r}
+# import the csv file that we are going to use for this exercise with stringsAsFactors = TRUE
+plant_gr <- read.csv(here("Data", "plant.growth.rate.csv"), stringsAsFactors = TRUE)
+
+# now we are going to run a summary of Leaves to take a look at the data
+glimpse(plant_gr)
+```
+# Linear Models
+Linear models include simple regression, multiple regression, ANOVA, and ANCOVA.  They use a least squares framework for estimation.  The function `lm()` is used to fit linear models
+
+## Simple linear regression
+For this example, we are exploring whether plant growth rates vary with soil moisture content.  The hypothesis is that more moisture will cause higher growth rates and vice versa.  
+
+```{r}
+# graphing the data
+ggplot(plant_gr,
+       aes(x = soil.moisture.content, y = plant.growth.rate))+
+     geom_point()+
+     ylab("Plant Growth Rate (mm/week)")+
+     theme_bw()
+
+```
+From this graph, the slope of the data appears to be positive which supports our hypothesis. 
+
+Now we will make a simple linear regression from this graph to fit the model using the `lm()` function.  
+```{r}
+# fit linear regression model to the data
+model_pgr <- lm(plant.growth.rate ~ soil.moisture.content, data = plant_gr)
+```
+
+Now we need to check the assumptions of the linear model using the `ggfortify` library.  This library has an `autoplot()` function that produces figures from the `lm()` generated linear model. 
+
+```{r}
+# checking assumptions of linear model
+autoplot(model_pgr, smooth.colour = NA)
+```
+These plots look at the residuals which refer to the errors around the fitted line.  Here is a breakdown of the graphs:
+     - top left: tells whether a line is appropriate to fit to the data.  If a line is not an appropriate model there will be bumps and valleys
+     - top right: evaluates the assumption of a normal distribution.  Dots are residuals and the dashed line is the expectation under the normal line
+     - bottom left: evauates the assumption of equal variance.  The y-axis is standardized and there should be no pattern within the data.
+     - bottom right: evaluates leverage to detect outliers
+
+```{r}
+# analyse the linear model with anova()
+anova(model_pgr)
+```
+Based on this analysis, the f-value is high.  This means that the error variance is small relative to the variance attributed to the independent variable.  We also have a small P value which indicates there is some degree of significance.
+
+```{r}
+# analyse the linear model with summary()
+summary(model_pgr)
+```
+These estimates correspond to the intercept and slope associated with the independent variable. 
+
+```{r}
+# fit linear regression model to graph
+ggplot(plant_gr, aes(x = soil.moisture.content,
+y = plant.growth.rate)) +
+geom_point() +
+geom_smooth(method = 'lm') +
+ylab("Plant Growth Rate (mm/week)") +
+theme_bw()
+```
+The light grey line is the standard error associated with the data and the blue line is the linear regression model. 
+
+# Analysis of variance: one-way ANOVA
+This type of ANOVA test deals with categorical variables which we imported as factors.  
+
+```{r}
+# Import the data that we are going to use
+daphnia <- read.csv(here("Data", "Daphniagrowth.csv"), stringsAsFactors = TRUE)
+
+# Take a look at the data
+glimpse(daphnia)
+```
+We are wondering whether water flea growth rates are impacted by parasites.  From the `glimpse()` function, we can see there are 3 different variables that we can use for figure making. 
+
+```{r}
+# make a box plot of the data
+ggplot(daphnia, aes(x = parasite, y = growth.rate)) +
+geom_boxplot() +
+theme_bw()
+```
+Now we will make a one way ANOVA using the `lm()` function and check the assumptions by doing the same thing that we did above.
+```{r}
+# Perform the ANOVA
+model_grow <- lm(growth.rate ~ parasite, data = daphnia)
+
+# check the assumptions
+autoplot(model_grow, smooth.colour = NA)
+
+summary(model_grow)
+```
+
+In the ANOVA framework, the word "intercept" refers to the first level of the alphabetically ordered treatment levels.  The treatment contrast reports differences between the reference level and other levels.  In this case, its reporting the difference between the control and other levels. They are negative because it is refering to the growth associated with the treatment condition with the parasite and the control (growth is worse with parasite).
+
+This can be calculated manually as well:
+```{r}
+# get the mean growth rates
+sumDat<-daphnia %>%
+group_by(parasite) %>%
+summarise(meanGR = mean(growth.rate))
+sumDat
+```
+
+```{r}
+# modeling raw growth rates, mean growth rates, and the differences between the control and parasite manipulations
+ggplot(daphnia, aes(x = parasite, y = growth.rate, colour = parasite)) +
+        geom_point() +
+        coord_flip()+
+        theme_bw()
+```
+
+
