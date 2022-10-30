@@ -85,6 +85,45 @@ geom_smooth(method = 'lm') +
 ylab("Plant Growth Rate (mm/week)") +
 theme_bw()
 ```
+The light grey line is the standard error associated with the data and the blue line is the linear regression model. 
 
+# Analysis of variance: one-way ANOVA
+This type of ANOVA test deals with categorical variables which we imported as factors.  
 
+```{r}
+# Import the data that we are going to use
+daphnia <- read.csv(here("Data", "Daphniagrowth.csv"), stringsAsFactors = TRUE)
+
+# Take a look at the data
+glimpse(daphnia)
+```
+We are wondering whether water flea growth rates are impacted by parasites.  From the `glimpse()` function, we can see there are 3 different variables that we can use for figure making. Lets make a boxplot to look at this real quick.
+
+```{r}
+# make a box plot of the data
+ggplot(daphnia, aes(x = parasite, y = growth.rate)) +
+geom_boxplot() +
+theme_bw()
+```
+Now we will make a one way ANOVA using the `lm()` function and check the assumptions by doing the same thing that we did above.
+```{r}
+# Perform the ANOVA
+model_grow <- lm(growth.rate ~ parasite, data = daphnia)
+
+# check the assumptions
+autoplot(model_grow, smooth.colour = NA)
+
+summary(model_grow)
+```
+
+In the ANOVA framework, the word "intercept" refers to the first level of the alphabetically ordered treatment levels.  The treatment contrast reports differences between the reference level and other levels.  In this case, its reporting the difference between the control and other levels. They are negative because it is refering to the growth associated with the treatment condition with the parasite and the control (growth is worse with parasite).
+
+This can be calculated manually as well:
+```{r}
+# get the mean growth rates
+sumDat<-daphnia %>%
+group_by(parasite) %>%
+summarise(meanGR = mean(growth.rate))
+sumDat
+```
 
