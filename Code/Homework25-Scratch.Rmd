@@ -127,3 +127,13 @@ summarise(meanGR = mean(growth.rate))
 sumDat
 ```
 
+Now I will attempt to make the graph that they made in the book:
+```{r}
+# modeling raw growth rates, mean growth rates, and the differences between the control and parasite manipulations
+ggplot(daphnia, aes(x = parasite, y = growth.rate, colour = parasite)) +
+        geom_point() +
+        coord_flip()+
+        theme_bw()
+```
+
+
