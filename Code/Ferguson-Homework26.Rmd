@@ -1,0 +1,114 @@
+---
+title: "Practicing using R to perform different statistical analyses"
+output: html_notebook
+---
+
+# Overview
+This homework is an extension of the work we did in class on analysing the soil data set.  Here are the questions we are trying to answer:
+
+1. Is there a relationship between Soil organic matter (SOM, %) and soil calcium (Ca_ppm)?
+
+2. Does the abundance of worms differ between Donnerville and the Kip Tract?
+
+3. Does the abundance of soil Magnesium (Mg_ppm) differ between Peavine and South Hammond?
+
+4. Does the abundance of zinc (Zn_ppm) differ among forests?
+
+First let's set things up:
+```{r}
+rm(list =ls())
+library(tidyverse)
+library(here)
+library(ggfortify)
+```
+
+Now lets pull the data in:
+```{r}
+# import the dataset
+soil <- read.csv(here("Data", "soil_reduced-1.csv"), stringsAsFactors = TRUE)
+
+View(soil)
+```
+
+# Checking the data
+Before we proceed with the analysis, it is important to check the data for possible errors and/or outliers. 
+
+A. Forest names
+```{r}
+# checking the levels of forests to make sure the names are imported correctly
+levels(soil$Forest)
+```
+B. Soil organic matter and soil calcium
+```{r}
+# make a histogram to check and see if there are any outliers
+ggplot(soil, aes(x = SOM_percent))+
+     geom_histogram()
+
+```
+Based on this histogram, there are not really any distict outliers.  Some of the values are high but these data were recorded from a machine so it is unlikely that the higher values are true outliers.
+
+```{r}
+# checking the soil calcium with a histogram
+ggplot(soil, aes(x = Ca_ppm))+
+     geom_histogram()
+```
+These data points also look good.  Let's run a summary to get an brief overview of the spread of the data.
+
+```{r}
+# use the summary to get some basic stats on the data set
+summary(soil)
+```
+Of these variables, the Buffer pH, Nitrate levels, and worms appear to have some potential outliers.  for these, the max is very far from the mean which indicates there may have been something that was a little off. 
+
+## 1. Is there a relationship between soil organic matter (SOM, %) and soil calcium(Ca_ppm)?
+Both variables are continuous so lets take a look at these with a scatterplot.
+
+### Plot the relationship
+```{r}
+# make a scatterplot to take a look at how these are related
+ggplot(soil, aes(x = SOM_percent, y = Ca_ppm, colour = Forest))+
+     geom_point()+
+     theme_bw()
+```
+From looking at the data, it appears there may be a weak positive relationship between SOM and Ca. The influence of a single point on the relationship is called "leverage".  We will be taking a look more into that by trying to figure out if there is a linear relationship between these two variables. 
+
+Can I guess the slope or y-intercept? 
+- the rise is about 1000
+- the run is about 53
+Dividing these to estimate the slope would give us (1000/53) = 18 ish
+y-intercept is about -5 or so.
+
+
+What statistical model fits these data?
+Both the predictor and the response variables are continuous so we will try to model this with a linear regression. Let's construct the model
+```{r}
+# model the relationship between these two variables with a linear regression, for the formula argument, you are saying "y as a function of x"
+SOM_CA_mod <- lm(Ca_ppm ~ SOM_percent, data = soil)
+```
+
+Now we need to check the assumptions before we move forward with the model.  We will do this by using the `autoplot()` function out of the `ggfortify` libarary.
+
+```{r}
+# check the assumptions
+autoplot(SOM_CA_mod)
+```
+From the looks of the Residuals vs Fitted plot, it appears there is a lot of variance at the start of the fitted values.  This makes sense because a lot of the data points are clustered at the begining and there are a decent amount of higher valeus within those data points.  That being said, we may be violating this assumption because the residuals are so far from the fitted data. 
+
+Based on these observations however and since these data came from a lab, I will say that these data do fit the assumption criteria of the linear model.
+
+Now let's look at the model outcome
+```{r}
+# first check this with ANOVA(), thid does not calculate an ANOVA but it provides the standard output of the ANOVA
+anova(SOM_CA_mod)
+```
+```{r}
+# run the summary of the function
+summary(SOM_CA_mod)
+```
+
+In this case, the null hypothesis is that there is no meaningful relationship between soil organic matter and calcium ppm.  Since the p value is greater than 0.05, it indicates there is no significant relationship between these two variables and we accept the null hypothesis. 
+
+
+
+
+
