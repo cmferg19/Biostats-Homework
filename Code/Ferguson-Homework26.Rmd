@@ -109,6 +109,38 @@ summary(SOM_CA_mod)
 In this case, the null hypothesis is that there is no meaningful relationship between soil organic matter and calcium ppm.  Since the p value is greater than 0.05, it indicates there is no significant relationship between these two variables and we accept the null hypothesis. 
 
 
+## 2. Does the abundance of worms differ between Donnerville and the Kip Tract?
+The first thing that we are going to do is plot these variables.  Since we are looking at the abundance of worms between donnerville and the kip tract, we will plot these as a histogram
+```{r}
+# isolate the Donnerville and Kip Tract data
+worms <- soil %>% filter(Forest == c("KIP TRACT", "DONNERVILLE"))
+# plot histogram modeling worms between Kip tract and Donnerville
+ggplot(worms, aes(x = Worms))+
+    geom_histogram(binwidth = 1)+
+     facet_wrap(~Forest)
+```
+From this histogram, the Kip Tract and Donnerville locations, it appears that there may be a higher abundance of worms in the Kip Tract compares to Donnerville. For this example, the worm data is quantitative ratio because it is counting data. On the other hand, the location is categorical nominal data since there are a number of differnet locations.  Since we are looking at two, I think the best way to compare these is to perform a two sample T test. 
+
+```{r}
+# calculate the means of the ozone levels in each location.
+worms %>% 
+     group_by(Forest)%>%
+     summarize(mean_worms = mean(Worms))
+```
+This gives us some more insight into the abundance of worms between the Kip Tract and Donnerville.  The means appear to be a bit further away from each other but it is still worth taking a closer look at with the two sample t test.
+
+```{r}
+
+# perform the two sample t test of the data
+t.test(Worms ~ Forest, data = worms)
+```
+Based on the two sample t test, we reject the null hypothesis because our p-value is less than 0.05 which indicates there is a significantly higher abundance of worms at the Kip Tract compared to Donnerville. 
+
+
+
+
+
+
 
 
 
