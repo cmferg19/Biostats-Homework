@@ -172,12 +172,26 @@ t.test(Mg_ppm ~ Forest, data = mag)
 Though the histogram makes it look like there may be a difference between the magnesium within the soil at the Peavine location and the South Hammond locations, the two sample t test says otherwise.  Since the p-value is greater than 0.05, we accept the null hypothesis which states that there is no significant difference between the magnesium concentration in the Peavine vs South Hammond locations. 
 
 
-
-
-
 ## 4. Does the abundance of zinc (Zn_ppm) differ among forests?
+The last think that we are going to look at is the zinc abundace.  Since we are looking at this between the different forests, we will first plot the zinc abundance as a series of histograms grouped by forest. 
+```{r}
+# plot histogram modeling soil zinc between the forests
+ggplot(soil, aes(x = Zn_ppm))+
+    geom_histogram(binwidth = 1)+
+     facet_wrap(~Forest)
+```
+From this, there are some clear differences in the distribution of zinc abundance between the forests.  To see whether this is significant or not, we will perform an ANOVA analysis.  This test makes the most sense in this context because we are trying to compare the zinc abundance (quantitative ratio data) with multiple Forests (categorical nominal data).
 
+```{r}
+# Perform the ANOVA
+model_zinc <- lm(Zn_ppm ~ Forest, data = soil)
 
+# check the assumptions
+autoplot(model_zinc, smooth.colour = NA)
+
+summary(model_zinc)
+```
+The results of the ANOVA show that there is a significant difference in zinc abundance between the Degrasse location and the others.  Between the rest of the forests, there is no significant difference in zinc soil abundance
 
 
 
