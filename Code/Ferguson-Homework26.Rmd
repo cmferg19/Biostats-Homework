@@ -119,15 +119,23 @@ ggplot(worms, aes(x = Worms))+
     geom_histogram(binwidth = 1)+
      facet_wrap(~Forest)
 ```
-From this histogram, the Kip Tract and Donnerville locations, it appears that there may be a higher abundance of worms in the Kip Tract compares to Donnerville. For this example, the worm data is quantitative ratio because it is counting data. On the other hand, the location is categorical nominal data since there are a number of differnet locations.  Since this is a count data set, we will analyse it using a chi squared test. 
+From this histogram, the Kip Tract and Donnerville locations, it appears that there may be a higher abundance of worms in the Kip Tract compares to Donnerville. For this example, the worm data is quantitative ratio because it is counting data. On the other hand, the location is categorical nominal data since there are a number of differnet locations.  Since this is a count data set, we will analyse it using a chi squared test.
 
 ```{r}
 # calculate the means of the ozone levels in each location.
-worms %>% 
+totals <- worms %>% 
      group_by(Forest)%>%
-     summarize(mean_worms = mean(Worms))
+     summarize(total_worms = sum(Worms))
 ```
-This gives us some more insight into the abundance of worms between the Kip Tract and Donnerville.  The means appear to be a bit further away from each other but it is still worth taking a closer look at with the two sample t test.
+Another way to take a look at this relationship is through making a bar graph of the total worms.
+
+```{r}
+ggplot(totals, aes(x = Forest, y = total_worms))+
+    geom_bar(stat = "identity", position = "dodge")
+```
+
+
+This gives us some more insight into the abundance of worms between the Kip Tract and Donnerville.  The means appear to be a bit further away from each other but it is still worth taking a closer look at with the chi sqared test.
 
 ```{r}
 # transform the data into a matrix form that will be used for the chi squared analysis
