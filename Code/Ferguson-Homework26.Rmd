@@ -191,7 +191,15 @@ autoplot(model_zinc, smooth.colour = NA)
 
 summary(model_zinc)
 ```
-The results of the ANOVA show that there is a significant difference in zinc abundance between the Degrasse location and the others.  Between the rest of the forests, there is no significant difference in zinc soil abundance
+The results of the ANOVA show that there is a significant difference in zinc abundance between the Degrasse location and the others.  Between the rest of the forests, there is no significant difference in zinc soil abundance.  Let's replot this to see the differences a little better:
+```{r}
+# modeling zinc abundance, and the differences between the forests and parasite manipulations
+ggplot(soil, aes(x = Forest, y = Zn_ppm, colour = Forest)) +
+        geom_point() +
+        coord_flip()+
+        theme_bw()
+```
+
 
 
 
