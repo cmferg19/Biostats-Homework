@@ -1,0 +1,20 @@
+---
+title: "Homework 27 - Getting Familliar With Data Visualization in R "
+output: html_notebook
+---
+
+# Overview
+For this homework assignment, I will be working through the first and second chapters of the "ggplot2: Elegant Graphics for Data Analysis". The goal of this activity is to learn a little bit more about how we can use the different functions inside of the `ggplot2` package to make visually appealing and clear figures with our data. 
+
+The first thing that I will do is set up the environement by running the code to install the different libraries that we need:
+
+```{r}
+# clear the environment window
+rm(list=ls())
+
+# import the libraries that we will need to use
+library(ggplot2)
+library(tidyverse)
+```
+Now we are going to use the MPG data for this practice.  The 
+
