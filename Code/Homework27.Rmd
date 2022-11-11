@@ -88,6 +88,134 @@ ggplot(mpg, aes(displ, hwy)) +
 ```
 The faceting is added as another layer to the plot and you can specify how you want the data to be faceted depenging on the goals of your data visualization. 
 
+## Plot geoms
+This is the primary method used to change the type of plot that you are trying to make.  Here are a few different options:
+     - geom_smooth() fits a smoother to the data to show standard error
+     - geom_boxplot() creates box plot
+     - geom_histogram() and geom_freqpoly() shows distribution of continuous variables
+     - geom_bar() shows distriution of categorical variables
+     - geom_path() and geom_line() draw lines between data points
+     
+### Adding a smoother to a plot
+One way to judge the trends in the data is to use a smoother to look at the dominant pattern.
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth()
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+Here the smoother is overlayed ontop of a scatterplot.  You can also see the standard error in the grey highlighted portion of the graph (these are point-wise confidence intervals and can be turned off with `geom_smooth(se = FALSE)`).
+
+For the `geom_smooth()` function, the method argument allows you to choose the type of model you want to smooth the curve.
+     - method = "loess" is the default for small n.  It uses a smooth local regression and the span parameter controls the "wiggliness" of the line
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(span = 0.2)
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(span = 1)
+#> `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+     - method = "gam" fits a generalized additive model that is provided by the mgcv package.  This requires the mgcv package to function and a formula like y ~ s(x)
+```{r}
+library(mgcv)
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(method = "gam", formula = y ~ s(x))
+```
+     - method = "lm" fits a linear model and gives the line of best fit
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+#> `geom_smooth()` using formula 'y ~ x'
+```
+     - method = "rlm" is similar to the linear regression created by the lm() function but uses a differnt fitting algorithm that discounts outliers more, this requires the MASS package. 
+     
+### Boxplots and jittered points
+Boxplots are useful to model the spread of continuous variables by categorical levels.  One way to do this is to create a scatterplot like this:
+```{r}
+ggplot(mpg, aes(drv, hwy)) + 
+  geom_point()
+```
+Say we wanted to clean this up a bit because all of the points are very much on top of each other and it is tough to see the distribution, there are a few ways we can do this. 
+     - geom_jitter() adds some random noise to the data to avoid overplotting
+     - geom_boxplot() sumarizes the shape of the distribution
+     - geom_violin() shows the density of the distribution
+     
+```{r}
+ggplot(mpg, aes(drv, hwy)) + geom_jitter()
+ggplot(mpg, aes(drv, hwy)) + geom_boxplot()
+ggplot(mpg, aes(drv, hwy)) + geom_violin()
+```
+### Histograms and frequency polygons
+Histograms and frequency pologons show the spread and distribution of data.  They do not show different summary statistics like boxplots do but they are able to show the spread really well:
+```{r}
+ggplot(mpg, aes(hwy)) + geom_histogram()
+#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+ggplot(mpg, aes(hwy)) + geom_freqpoly()
+#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+Both of these bin the data and count the number of observations in each bin.  You can control the width of the bins using the `binwidth` argument.  This can give you a better idea of the spread of the data, especially if it is really small. 
+
+```{r}
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 2.5)
+ggplot(mpg, aes(hwy)) + 
+  geom_freqpoly(binwidth = 1)
+```
+You can also create a density plot using the `geom_density()` function but these can be a bit harder to interpret.  There are a few different ways you can compare the distributions using the frequency polygon and it even allows you to add in faceting:
+```{r}
+ggplot(mpg, aes(displ, colour = drv)) + 
+  geom_freqpoly(binwidth = 0.5)
+ggplot(mpg, aes(displ, fill = drv)) + 
+  geom_histogram(binwidth = 0.5) + 
+  facet_wrap(~drv, ncol = 1)
+```
+### Bar charts
+Bar charts are best for comparing count data between categories:
+```{r}
+ggplot(mpg, aes(manufacturer)) + 
+  geom_bar()
+```
+This chart consists of unsummarized data.  Each observation contributes one unit to the height of each bar.  If you have presummarized data however it is a little different:
+```{r}
+drugs <- data.frame(
+  drug = c("a", "b", "c"),
+  effect = c(4.2, 9.7, 6.1)
+)
+
+# tell geom_bar not to run the default tat which bins and counts the data
+ggplot(drugs, aes(drug, effect)) + geom_bar(stat = "identity")
+ggplot(drugs, aes(drug, effect)) + geom_point()
+```
+### Time series with line and path plots
+Line and path plots are commonly used for time series data.  Line plots joing the points from left to right and the path joins them in the order that they appear in the dataset.  For example:
+```{r}
+ggplot(economics, aes(date, unemploy / pop)) +
+  geom_line()
+ggplot(economics, aes(date, uempmed)) +
+  geom_line()
+```
+These are great for showing how things change over time.  If we want to draw both of the time series on the same plot, we can join points adjacent in time with line segements.
+
+```{r}
+ggplot(economics, aes(unemploy / pop, uempmed)) + 
+  geom_path() +
+  geom_point()
+
+year <- function(x) as.POSIXlt(x)$year + 1900
+ggplot(economics, aes(unemploy / pop, uempmed)) + 
+  geom_path(colour = "grey50") +
+  geom_point(aes(colour = year(date)))
+```
+From these, you can see that unepmployment rate and the length of unemployment are highly correlated but it appears that the length of unemployment is now rising in recent years.
+
+
+
 
 
 
