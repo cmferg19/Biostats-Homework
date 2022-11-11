@@ -231,6 +231,53 @@ ggplot(mpg, aes(cty, hwy)) +
   xlab(NULL) + 
   ylab(NULL)
 ```
+The functions `xlim()` and `ylim()` can be used to modify the limits of the axes:
+```{r}
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25)
+
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25) + 
+  xlim("f", "r") + 
+  ylim(20, 30)
+#> Warning: Removed 140 rows containing missing values (geom_point).
+  
+# For continuous scales, use NA to set only one limit
+ggplot(mpg, aes(drv, hwy)) +
+  geom_jitter(width = 0.25, na.rm = TRUE) + 
+  ylim(NA, 30)
+```
+
+## Output
+Another thing that you can do in R is create a plot object and save it to a variable.  This allows you to manipulate it later on if you wish.
+```{r}
+p <- ggplot(mpg, aes(displ, hwy, colour = factor(cyl))) +
+  geom_point()
+```
+
+Now that this is a plot object, you can call it with the `print()` function:
+
+```{r}
+print(p)
+```
+You can also save it to disk with `ggsave()`:
+```{r}
+# Save png to disk
+ggsave("plot.png", p, width = 5, height = 5)
+```
+
+You can describe the structue of the plot with the `summary()` function:
+```{r}
+summary(p)
+```
+Lastly, you can save a cached copy of it to disk using `saveRDS()`.  Saving it this way  allows you to recreate it with `readRDS()`.
+```{r}
+saveRDS(p, "plot.rds")
+q <- readRDS("plot.rds")
+```
+
+
+
 
 
 
