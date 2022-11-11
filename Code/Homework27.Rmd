@@ -16,5 +16,79 @@ rm(list=ls())
 library(ggplot2)
 library(tidyverse)
 ```
-Now we are going to use the MPG data for this practice.  The 
+Now we are going to use the MPG data for this practice.  The MPG data is built into the ggplot frame
+
+```{r}
+# taking a look at the dataset
+mpg
+```
+## Taking a look at the key components of a ggplot2 plot
+
+Every plot created in ggplot2 has three main parts: the data, the aesthetic mappings, and the geom function
+
+```{r}
+# example of the ggplot functionality
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+
+# this can also be written as:
+# ggplot(mpg, aes(displ, hwy)) +
+  # geom_point()
+```
+The data in this case is the mpg data, the aes function refers to the engine size mapped to the x position and the fuel economy to the y position.  The layer is the points to create a scatterplot.
+
+Describe the data, aesthetic mappings, and layers for the following plots:
+```{r}
+ggplot(mpg, aes(cty, hwy)) + geom_point()
+
+ggplot(diamonds, aes(carat, price)) + geom_point()
+
+ggplot(economics, aes(date, unemploy)) + geom_line()
+
+ggplot(mpg, aes(cty)) + geom_histogram()
+```
+1. Data = mpg, aes = cty as the x and hwy as the y, geom = point to create a scatterplot
+
+2. Data = diamonds, aes = carat as the x and price as the y, geom = point to create a scatterplot
+
+3. Data = economics, aes = date as the x and unemployment as the y, aes = line to show a line graph modeling the trend
+
+4. Data = mpg, aes = cty, geom = histogram to shot the spred of the city data
+
+## Color, size, shape, and other aesthetic attributes
+There are a number of different ways to change and customize your plot from within the `aes()` function.  Some examples include:
+
+```{r}
+aes(displ, hwy, colour = class)
+aes(displ, hwy, shape = drv)
+aes(displ, hwy, size = cyl)
+```
+We can overlay these variables in the previous scatterplots by adding them directly in the `aes()` function:
+
+```{r}
+ggplot(mpg, aes(displ, hwy, colour = class)) +
+  geom_point()
+```
+Here each point now has a unique color that represents its class.  This also puts a legend on the graph that makes it easier to interpret.
+
+You can also add these features by adding another layer to the plot:
+```{r}
+ggplot(mpg, aes(displ, hwy)) + geom_point(aes(colour = "blue"))
+
+ggplot(mpg, aes(displ, hwy)) + geom_point(colour = "blue")
+```
+When you use the `aes()` function inside of a new layer, it adds a legend but the color is incorrect.  If you do not use the `aes()` function, the color will be correct but no legend will be generated. 
+
+## Faceting
+Another way to visually show data is to split it up by category. This allows you to split the data into subsets to make it easier to digest.  For example:
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() + 
+  facet_wrap(~class)
+```
+The faceting is added as another layer to the plot and you can specify how you want the data to be faceted depenging on the goals of your data visualization. 
+
+
+
+
 
