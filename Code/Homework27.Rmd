@@ -214,6 +214,23 @@ ggplot(economics, aes(unemploy / pop, uempmed)) +
 ```
 From these, you can see that unepmployment rate and the length of unemployment are highly correlated but it appears that the length of unemployment is now rising in recent years.
 
+## Modifying the axes
+There are a few different ways that we can modify the axes when we are analysing data.  The method that we have been using is with the `xlab()` and `ylab()` layers.
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3)
+
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3) + 
+  xlab("city driving (mpg)") + 
+  ylab("highway driving (mpg)")
+
+# Remove the axis labels with NULL
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point(alpha = 1 / 3) + 
+  xlab(NULL) + 
+  ylab(NULL)
+```
 
 
 
