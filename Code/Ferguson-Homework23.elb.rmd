@@ -1,0 +1,145 @@
+---
+title: "Practicing Data Modeling with Soil Data"
+output: html_notebook
+---
+PLEASE LOOK FOR MY ALL CAPS COMMENTS BELOW
+
+# Overview
+For this practice set, I will be taking soil data that was given to us in class and using that to create some different plots to model the data. The first step will be to clear R's environment and import the libraries that we will need.
+
+```{r}
+# clear the R environment and import the libraries that we need
+rm(list = ls())
+library(here)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+```
+
+# Getting Started
+The next thing to do is to import the data.  The `here()` function sets the file path to the homework folder that I am currently working in.  Using `read.csv()` we can select the soil data from the "Data" folder in this project. 
+
+```{r}
+# import the data 
+soil <- read.csv(here("Data", "soil_data.csv"), stringsAsFactors = TRUE)
+
+# open the data to ensure that it imported correctly
+#View(soil)
+
+# rename the Field.Name column to get rid of the period
+soil <- rename(soil, field_name = Field.Name)
+```
+
+Now, we want to create a scatterplot, boxplot, and histogram for the SOM_percent column. The first thing I am going to do however is use the `filter()` function to take all of the ones with DEGRASS in the name and `mutate()` to create a new column called DEGRASS.  This process will be repeated with all 5 forests.
+
+```{r}
+# use piping to filter out the Degrasse Plots from the rest of the forest data name and make those samples into a new dataframe
+Degrasse_plts <- c('DEGRASSE PLOT 1 SAMPLE 1', 'DEGRASSE PLOT 1 SAMPLE 2', 'DEGRASSE PLOT 1 SAMPLE 3', 'DEGRASSE PLOT 2 SAMPLE 1','DEGRASSE PLOT 2 SAMPLE 2', 'DEGRASSE PLOT 2 SAMPLE 3', 'DEGRASSE PLOT 3 SAMPLE 1', 'DEGRASSE PLOT 3 SAMPLE 2', 'DEGRASSE PLOT 3 SAMPLE 3')
+
+Donnerville_plts <- c('DONNERVILLE PLOT 1 SAMPLE 1', 'DONNERVILLE PLOT 1 SAMPLE 2', 'DONNERVILLE PLOT 1 SAMPLE 3', 'DONNERVILLE PLOT 2 SAMPLE 1','DONNERVILLE PLOT 2 SAMPLE 2', 'DONNERVILLE PLOT 2 SAMPLE 3', 'DONNERVILLE PLOT 3 SAMPLE 1', 'DONNERVILLE PLOT 3 SAMPLE 2', 'DONNERVILLE PLOT 3 SAMPLE 3')
+
+Kip_plts <- c('KIP TRACT PLOT 1 SAMPLE 1', 'KIP TRACT PLOT 1 SAMPLE 2', 'KIP TRACT PLOT 1 SAMPLE 3', 'KIP TRACT PLOT 2 SAMPLE 1','KIP TRACT PLOT 2 SAMPLE 2', 'KIP TRACT PLOT 2 SAMPLE 3', 'KIP TRACT PLOT 3 SAMPLE 1', 'KIP TRACT PLOT 3 SAMPLE 2', 'KIP TRACT PLOT 3 SAMPLE 3')
+
+Peavine_plts <- c('PEAVINE PLOT 1 SAMPLE 1', 'PEAVINE PLOT 1 SAMPLE 2', 'PEAVINE PLOT 1 SAMPLE 3', 'PEAVINE PLOT 2 SAMPLE 1','PEAVINE PLOT 2 SAMPLE 2', 'PEAVINE PLOT 2 SAMPLE 3', 'PEAVINE PLOT 3 SAMPLE 1', 'PEAVINE PLOT 3 SAMPLE 2', 'PEAVINE PLOT 3 SAMPLE 3')
+
+Hammond_plts <- c('HAMMOND PLOT 1 SAMPLE 1', 'HAMMOND PLOT 1 SAMPLE 2', 'HAMMOND PLOT 1 SAMPLE 3', 'HAMMOND PLOT 2 SAMPLE 1','HAMMOND PLOT 2 SAMPLE 2', 'HAMMOND PLOT 2 SAMPLE 3', 'HAMMOND PLOT 3 SAMPLE 1', 'HAMMOND PLOT 3 SAMPLE 2', 'HAMMOND PLOT 3 SAMPLE 3')
+
+
+# I though this code might allow me to take the variables I defined above and make them into a new column but it did not work, I kept running into an error where the console would output " Unknown levels in `f`: HAMMOND PLOT 1 SAMPLE 1, HAMMOND PLOT 1 SAMPLE 2, HAMMOND PLOT 1 SAMPLE 3"  I tried for a long time to look into this error but I had no luck
+
+#soil <- soil %>% 
+  #mutate(Forest = fct_collapse(field_name,
+                             # Degrasse = Degrasse_plts,
+                             # Donnerville = Donnerville_plts,
+                             # Kip = Kip_plts,
+                             # Peavine = Peavine_plts,
+                             # Hammond = Hammond_plts))
+
+#Assign all of the data from the different forrests to new data frames to seperate them by forest.
+
+#Degrasse <- soil %>% filter(Field.Name == Degrasse_plts)
+#Donnerville <- soil %>% filter(Field.Name == Donnerville_plts)
+#Kip <- soil %>% filter(Field.Name == Kip_plts)
+#Peavine <- soil %>% filter(Field.Name == Peavine_plts)
+#Hammond <- soil %>% filter(Field.Name == Hammond_plts)
+
+```
+
+THE CODE YOU CREATED ABOVE DIDNT WORK AND WAS ALSO LESS THAN IDEAL BECAUSE IT WAS NOT VERY AUTOMATED. TRY THE BELOW EXAMPLE
+
+```{r}
+#create new column
+soil$Forest <-"" #creates new empty character column
+#sort forests and fill in column
+Degrasse<-"DEGRASSE*" #creates wildcard to search
+fix <- grep(Degrasse, soil$field_name)
+soil$Forest[fix]<- "Degrasse"
+
+Don <-"DONNERVILLE*"
+fix <- grep(Don, soil$field_name)
+soil$Forest[fix]<- "Donnerville"
+
+Kip <-"KIP*"
+fix <-grep(Kip, soil$field_name)
+soil$Forest[fix] <- "Kip Tract"
+
+Pea <-"PEAVINE*"
+fix <-grep(Pea, soil$field_name)
+soil$Forest[fix] <- "Peavine"
+
+SH <-"SOUTH HAMMOND*"
+fix <-grep(SH, soil$field_name)
+soil$Forest[fix] <- "South Hammond"
+
+soil$Forest
+```
+
+# Creating plots
+
+The first plot I am going to make is a scatterplot of the SOM percent with respect to field name.  Unfortunately, I was unable to make a new column with the forest data so the x-axis is not ideal.
+```{r}
+# Use ggplot to make a simple scatterplot
+# the function takes the following parameters: ggplot(data frame, aes(x = x-axis, y = y-axis))+geom_point()
+
+# the +geom_point() function adds another layer to the plot that will overlay your data points
+ggplot(soil, aes(x = field_name, y = SOM_percent)) + geom_point()
+```
+Now I am going to create a box plot with the same parameters. I don't expect it to look the right way because I couldn't categoize my variables.
+
+```{r}
+# making a box and whisker plot with ggplot.  Here, instead of specifiying point, you specify the geom_boxplot to add the boxplot as another layer
+ggplot(soil, aes(x = field_name, y = SOM_percent)) +
+geom_boxplot() +
+xlab("field name") +
+ylab("SOM percent") +
+theme_bw()
+```
+Creating a histogram using the functions inside of `ggplot2()`
+```{r}
+# creating a histogram using ggplot()
+ggplot(soil, aes(x = SOM_percent)) +
+geom_histogram()
+```
+Now we are going to repeat the same process with the calcium ppm data.
+
+```{r}
+# Use ggplot to make a simple scatterplot
+# the function takes the following parameters: ggplot(data frame, aes(x = x-axis, y = y-axis))+geom_point()
+
+# the +geom_point() function adds another layer to the plot that will overlay your data points
+ggplot(soil, aes(x = field_name, y = Ca.ppm)) + geom_point()
+```
+```{r}
+# making a box and whisker plot with ggplot.  Here, instead of specifiying point, you specify the geom_boxplot to add the boxplot as another layer
+ggplot(soil, aes(x = field_name, y = Ca.ppm)) +
+geom_boxplot() +
+xlab("field name") +
+ylab("Ca ppm") +
+theme_bw()
+```
+```{r}
+# creating a histogram using ggplot()
+ggplot(soil, aes(x = Ca.ppm)) +
+geom_histogram()
+```
+
